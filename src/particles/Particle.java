@@ -38,9 +38,9 @@ class Particle implements Cloneable {
     }
     
     public Particle(float magnitude, float spawnTime, Random r) {
-        size = magnitude;
+        size = (float)Math.abs(magnitude*(r.nextGaussian()+1));
         this.spawnTime = spawnTime;
-        lifeSpan=magnitude*10;
+        lifeSpan=magnitude*20;
         weight = magnitude;
         
         pos = new Vec3f((float)r.nextGaussian()*magnitude,

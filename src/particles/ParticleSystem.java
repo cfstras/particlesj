@@ -14,9 +14,9 @@ import java.util.Random;
  */
 class ParticleSystem extends Thread {
     
-    int maxParticles = 300;
+    int maxParticles = 120000;
     
-    float particleSpawnInterval = 0.1f;
+    float particleSpawnInterval = 0.00010f;
     
     OGL ogl;
     boolean run=true;
@@ -29,6 +29,8 @@ class ParticleSystem extends Thread {
     float time;
     long startTime;
     float lastParticleBirth;
+    
+    int numParticles;
     
     Random r;
     LinkedList<Particle> particles;
@@ -57,12 +59,10 @@ class ParticleSystem extends Thread {
     }
 
     private void doGeneration() {
-        int numParticles = particles.size();
-        if(numParticles<maxParticles) {
-            if(lastParticleBirth+particleSpawnInterval<time) {
-                newParticle();
-                lastParticleBirth=time;
-            }
+        numParticles = particles.size();
+        while(numParticles<maxParticles && lastParticleBirth+particleSpawnInterval<time) {
+            newParticle();
+            lastParticleBirth+=particleSpawnInterval;
         }
         ListIterator<Particle> it = particles.listIterator();
         Particle p;
@@ -70,21 +70,23 @@ class ParticleSystem extends Thread {
             p=it.next();
             if(p.spawnTime+p.lifeSpan<time) {
                 it.remove();
+                numParticles--;
                 //System.out.println("death: "+p.toString());
                 continue;
             }
             p.life = 1- ( time-p.spawnTime )/ p.lifeSpan;
             
             //move
-            p.pos.addToThis(p.speed.mult(deltaTime*0.3f));
+            p.pos.addToThis(p.speed.mult(deltaTime*0.2f));
             //add pull
-            p.speed.addToThis( p.pos.mult(-1f*0.2f) ); // the great attractor is at 0,0,0
+            p.speed.addToThis( p.pos.mult(-1f*deltaTime) ); // the great attractor is at 0,0,0
         }
     }
     
     private void newParticle() {
         Particle p = new Particle(1.0f, time, r);
         particles.add(p);
+        numParticles++;
         //System.out.println("new Particle: "+p.toString());
     }
     
@@ -94,6 +96,8 @@ class ParticleSystem extends Thread {
             clone.add(p.clone());
         }
         ogl.particles=clone;
+        ogl.numParticles=numParticles;
+        ogl.deltaGTime=deltaTime;
     }
 
     private void sync() {

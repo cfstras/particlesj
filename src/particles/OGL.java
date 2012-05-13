@@ -24,12 +24,15 @@ class OGL extends Thread {
     float rotationX, rotationY;
     float mouseSpeed = 0.5f;
     
+    float particleRadius = 0.003f;
+    int numParticles;
+    
     LinkedList<Particle> particles;
     
     public OGL() {
         x = 0;
         y = 0;
-        z = 10;
+        z = 5;
         rotationX = 0;
         rotationY = 0;
     }
@@ -68,7 +71,7 @@ class OGL extends Thread {
         Display.setDisplayMode(myDM);
         Display.setVSyncEnabled(true);
         Display.setTitle("particles");
-        Display.setFullscreen(true);
+        Display.setFullscreen(false);
         Display.create(new PixelFormat(8, 0, 0, 4));
 
         glDisable(GL_LIGHTING);
@@ -122,16 +125,15 @@ class OGL extends Thread {
     private void drawParticles() {
         //get hold of current list
         LinkedList<Particle> l = particles;
-        glScalef(2, 2, 2);
         float[] col = new float[3];
         for(Particle p: l) {
             glBegin(GL_TRIANGLE_STRIP);
             col = p.color.getColorComponents(col);
             glColor3f(col[0]*p.life, col[1]*p.life, col[2]*p.life);
-            glVertex3f(p.pos.x+0.03f, p.pos.y+0.03f, p.pos.z);
-            glVertex3f(p.pos.x-0.03f, p.pos.y+0.03f, p.pos.z);
-            glVertex3f(p.pos.x+0.03f, p.pos.y-0.03f, p.pos.z);
-            glVertex3f(p.pos.x-0.03f, p.pos.y-0.03f, p.pos.z);
+            glVertex3f(p.pos.x+particleRadius, p.pos.y+particleRadius, p.pos.z);
+            glVertex3f(p.pos.x-particleRadius, p.pos.y+particleRadius, p.pos.z);
+            glVertex3f(p.pos.x+particleRadius, p.pos.y-particleRadius, p.pos.z);
+            glVertex3f(p.pos.x-particleRadius, p.pos.y-particleRadius, p.pos.z);
             glEnd();
         }
         
@@ -150,7 +152,8 @@ class OGL extends Thread {
      * last fps time
      */
     long lastFPS;
-    public float deltaTime;
+    float deltaGTime;
+    float deltaTime;
 
     /**
      * Calculate the FPS and set it in the title bar
@@ -162,7 +165,8 @@ class OGL extends Thread {
         lastFrame = time;
 
         if (time - lastFPS > 1000) {
-            Display.setTitle("particles FPS: " + fps + " deltaT: " + deltaTime);
+            Display.setTitle("particles:"+numParticles+" FPS:" + fps +
+                    " deltaT:" + deltaTime +" deltaG:"+deltaGTime);
             fps = 0; //reset the FPS counter
             lastFPS = time; //add one second
         }
