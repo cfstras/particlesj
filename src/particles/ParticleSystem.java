@@ -14,9 +14,9 @@ import java.util.Random;
  */
 class ParticleSystem extends Thread {
     
-    int maxParticles = 120000;
+    int maxParticles = 50;
     
-    float particleSpawnInterval = 0.00010f;
+    float particleSpawnInterval = maxParticles*0.01f;
     
     OGL ogl;
     boolean run=true;

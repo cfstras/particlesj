@@ -24,7 +24,7 @@ class OGL extends Thread {
     float rotationX, rotationY;
     float mouseSpeed = 0.5f;
     
-    float particleRadius = 0.003f;
+    float particleRadius = 0.3f;
     int numParticles;
     
     LinkedList<Particle> particles;
@@ -126,17 +126,24 @@ class OGL extends Thread {
         //get hold of current list
         LinkedList<Particle> l = particles;
         float[] col = new float[3];
+        glBegin(GL_TRIANGLES);
         for(Particle p: l) {
-            glBegin(GL_TRIANGLE_STRIP);
+            
+            Vec3f dir = new Vec3f(p.speed); dir.normalize();
+            
             col = p.color.getColorComponents(col);
             glColor3f(col[0]*p.life, col[1]*p.life, col[2]*p.life);
-            glVertex3f(p.pos.x+particleRadius, p.pos.y+particleRadius, p.pos.z);
-            glVertex3f(p.pos.x-particleRadius, p.pos.y+particleRadius, p.pos.z);
-            glVertex3f(p.pos.x+particleRadius, p.pos.y-particleRadius, p.pos.z);
-            glVertex3f(p.pos.x-particleRadius, p.pos.y-particleRadius, p.pos.z);
-            glEnd();
+            glVertex3f(p.pos.x+dir.x*particleRadius, p.pos.y+dir.y*particleRadius, p.pos.z+dir.z*particleRadius ); //tip
+            glVertex3f(p.pos.x-dir.y/2*particleRadius, p.pos.y+dir.x/2*particleRadius, p.pos.z); //base 1
+            glVertex3f(p.pos.x+dir.y/2*particleRadius, p.pos.y-dir.x/2*particleRadius, p.pos.z); //base 2
+            
+            //glVertex3f(p.pos.x+particleRadius, p.pos.y+particleRadius, p.pos.z);
+            //glVertex3f(p.pos.x-particleRadius, p.pos.y+particleRadius, p.pos.z);
+            //glVertex3f(p.pos.x+particleRadius, p.pos.y-particleRadius, p.pos.z);
+            //glVertex3f(p.pos.x-particleRadius, p.pos.y-particleRadius, p.pos.z);
+            
         }
-        
+        glEnd();
         //System.out.println(l.size()+" particles drawn.");
     }
     
