@@ -4,6 +4,7 @@
  */
 package particles;
 
+import java.io.File;
 import org.lwjgl.input.Mouse;
 import java.util.LinkedList;
 import org.lwjgl.*;
@@ -62,6 +63,10 @@ class OGL extends Thread {
     }
 
     private void initGL() throws LWJGLException {
+        //get librarypath -Djava.library.path=lib/native/windows/
+        String ds = System.getProperty("file.separator");
+        System.setProperty("org.lwjgl.librarypath", new File("").getAbsolutePath()+ ds +"lib"+ds+"native"+ds+"windows");       
+        
         DisplayMode myDM = null;
         for (DisplayMode d : Display.getAvailableDisplayModes()) {
             //System.out.println(d.toString());
