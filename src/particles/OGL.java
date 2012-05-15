@@ -25,6 +25,11 @@ class OGL extends Thread {
     float rotationX, rotationY;
     float mouseSpeed = 0.5f;
     
+    DisplayMode dm;
+    int windowWidth;
+    int windowHeight;
+    float aspect;
+    
     float particleRadius = 0.03f;
     int numParticles;
     
@@ -67,22 +72,25 @@ class OGL extends Thread {
         String ds = System.getProperty("file.separator");
         System.setProperty("org.lwjgl.librarypath", new File("").getAbsolutePath()+ ds +"lib"+ds+"native"+ds+"windows");       
         
-        DisplayMode myDM = null;
+        dm = null;
         for (DisplayMode d : Display.getAvailableDisplayModes()) {
             //System.out.println(d.toString());
             if (d.getWidth() == 800 && d.getHeight() == 600 && d.getFrequency() == 60) {
                 //myDM = d;
             }
         }
-        if (myDM == null) {
-            myDM = Display.getDesktopDisplayMode();
+        if (dm == null) {
+            dm = Display.getDesktopDisplayMode();
         }
-        System.out.println("Selected: " + myDM);
-
-        Display.setDisplayMode(myDM);
+        System.out.println("Selected: " + dm);
+        
+        windowHeight=dm.getHeight();
+        windowWidth=dm.getWidth();
+        aspect = (float)windowWidth/(float)windowHeight;
+        Display.setDisplayMode(dm);
         Display.setVSyncEnabled(true);
         Display.setTitle("particles");
-        Display.setFullscreen(false);
+        Display.setFullscreen(true);
         Display.create(new PixelFormat(8, 0, 0, 4));
 
         glDisable(GL_LIGHTING);
@@ -90,8 +98,8 @@ class OGL extends Thread {
         glShadeModel(GL_SMOOTH); // Enable Smooth Shading
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Black Background
         glClearDepth(1.0); // Depth Buffer Setup
-        glEnable(GL_DEPTH_TEST); // Enables Depth Testing
         glDepthFunc(GL_LESS); // The Type Of Depth Testing To Do
+        glEnable(GL_DEPTH_TEST); // Enables Depth Testing
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -104,50 +112,54 @@ class OGL extends Thread {
 
         //glEnable(GL_CULL_FACE);
         //glFrontFace(GL_CCW);
-        // Calculate The Aspect Ratio Of The Window
-        gluPerspective(
-                80.0f,
-                (float) myDM.getWidth() / (float) myDM.getHeight(),
-                0.001f,
-                1024.0f);
-        glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
+        
 
         // Really Nice Perspective Calculations
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        //Primitives.cubeList=Primitives.generateCubeList();
-
+    }
+    
+    private void perspective(boolean right) {
+        int vx = right ? windowWidth/2 : 0;
+        
+        glViewport(vx, 0, windowWidth/2, windowHeight);
+        glMatrixMode (GL_PROJECTION);                       // Select The Projection Matrix
+        glLoadIdentity ();                          // Reset The Projection Matrix
+        // Calculate The Aspect Ratio Of The Window
+        gluPerspective(
+                80.0f,
+                aspect/2,
+                0.001f,
+                1024.0f);
+        glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
+        glClear(GL_DEPTH_BUFFER_BIT);
     }
 
     private void render() throws LWJGLException {
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        glLoadIdentity();
+        glClear(GL_COLOR_BUFFER_BIT);
         
-        //draw the ship
-        //glBegin(GL_TRIANGLES);
-        //glColor4f(1,1,1,1);
-        //glVertex3f(0.0f,-0.5f,-2.0f); // tip
-        //glVertex3f(0.3f,-0.5f,-0.2f);
-        //glVertex3f(-0.3f,-0.5f,-0.2f);
-        //glEnd();
+        perspective(false);
+        glLoadIdentity();
+        glTranslatef(-0.01f,0,0);
+        drawWindow();
+        
+        perspective(true);
+        glLoadIdentity();
+        glTranslatef(0.02f,0,0);
+        drawWindow();
+    }
+    
+    private void drawWindow() {
         //camera
-        Particle p = particles.element();
-        Vec3f m = new Vec3f(p.speed);
-        m.normalize();
-        Vec3f m2 = new Vec3f(m);
+        Particle f = particles.element();
+        Vec3f m2 = new Vec3f(f.speed);
+        m2.normalize();
         //m2.multToThis(3);
         glRotatef(rotationY, 1.0f, 0.0f, 0.0f);  //rotate our camera on teh x-axis (up down)
         glRotatef(rotationX, 0.0f, 1.0f, 0.0f);  //rotate our camera on the y-axis (left right)
-        gluLookAt(p.pos.x, p.pos.y, p.pos.z, p.pos.x+m2.x,p.pos.y+m2.y,p.pos.z+m2.z,  p.pos.x,p.pos.y,p.pos.z);
+        gluLookAt(f.pos.x, f.pos.y, f.pos.z, f.pos.x+m2.x,f.pos.y+m2.y,f.pos.z+m2.z,  f.pos.x,f.pos.y,f.pos.z);
         //glTranslatef(0,particleRadius,-particleRadius);
         //glTranslated(-x, -y, -z); //translate the screento the position of our camera
         
-        
-        drawParticles();
-        
-    }
-    
-    private void drawParticles() {
         //get hold of current list
         LinkedList<Particle> l = particles;
         float[] col = new float[3];
