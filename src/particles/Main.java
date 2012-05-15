@@ -15,8 +15,10 @@ public class Main {
      */
     public static void main(String[] args) {
         OGL ogl = new OGL();
-        ogl.start();
         ParticleSystem ps = new ParticleSystem(ogl);
-        ps.start();
+        ogl.ps = ps;
+        ogl.start();
+        
+        //ps.start();
     }
 }

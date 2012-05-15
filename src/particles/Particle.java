@@ -22,6 +22,8 @@ class Particle implements Cloneable {
     Vec3f pos;
     Vec3f speed;
     float weight;
+    boolean spawning = true;
+    boolean forever=false;
     
     public Particle(Vec3f pos, Vec3f speed, Color color, float weight, float size, float lifeSpan, float spawnTime) {
         this.size=size; this.speed=speed; this.color=color; this.pos=pos;
@@ -30,11 +32,12 @@ class Particle implements Cloneable {
         life=1f;
     }
     
-    public Particle(Vec3f pos, Vec3f speed, Color color, float weight, float size, float lifeSpan, float spawnTime,float life) {
+    public Particle(Vec3f pos, Vec3f speed, Color color, float weight, float size, float lifeSpan, float spawnTime,float life, boolean spawning, boolean forever) {
         this.size=size; this.speed=speed; this.color=color; this.pos=pos;
         this.weight=weight; this.size=size; this.lifeSpan=lifeSpan;
         this.spawnTime=spawnTime;
         this.life = life;
+        this.spawning = spawning; this.forever = forever;
     }
     
     public Particle(float magnitude, float spawnTime, Random r) {
@@ -56,7 +59,7 @@ class Particle implements Cloneable {
     }
     
     @Override public Particle clone() {
-        Particle n = new Particle(pos,speed,color,weight,size,lifeSpan,spawnTime,life);
+        Particle n = new Particle(pos,speed,color,weight,size,lifeSpan,spawnTime,life,spawning,forever);
         return n;
     }
     
