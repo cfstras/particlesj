@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
+import org.lwjgl.input.Keyboard;
 
 /**
  *
@@ -137,6 +138,9 @@ class ParticleSystem extends Thread {
         lastTime=time_temp;
         deltaTime = timeSince/1000f;
         time = (time_temp-startTime)/1000f;
+        
+        if(Keyboard.isKeyDown((Keyboard.KEY_SPACE)))
+            deltaTime=0.0001f;        
     }
 
     
