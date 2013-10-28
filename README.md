@@ -19,6 +19,7 @@ run
 
 license
 -------
-lwjgl library: proprietary, see http://lwjgl.org/license.php
+
+lwjgl library: proprietary, see http://lwjgl.org/license.php  
 code: WTFPL v2 (see LICENSE)
 
